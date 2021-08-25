@@ -1,6 +1,6 @@
 package com.example.tada.screens.overview
 
-import android.icu.text.Transliterator
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,17 +11,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tada.R
 import com.example.tada.model.Category
 import com.example.tada.ui.theme.icons
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 @Composable
@@ -42,7 +49,7 @@ fun OverviewScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {
-
+                          viewModel.submitAction(OverviewScreenAction.CreateCategory)
                 },
                 text = { Text("Add category") }
             )
@@ -50,11 +57,41 @@ fun OverviewScreen(
     )
 }
 
+//@Composable
+//fun BottomSheetDialog(
+//    isCollapsed: Boolean,
+//    sheetState: BottomSheetScaffoldState
+//) {
+//
+//    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+//        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
+//    )
+//
+//    BottomSheetScaffold(
+//        scaffoldState = sheetState,
+//        sheetShape = RoundedCornerShape(32.dp),
+//        sheetContent = {
+//            Box(
+//                Modifier
+//                    .fillMaxWidth()
+//                    .height(200.dp)
+//            ) {
+//                Text(text = "Hallo Welt")
+//            }
+//        }, sheetPeekHeight = 0.dp
+//    ) {
+//        Scaffold {
+//
+//        }
+//    }
+//}
+
 @Composable
 fun OverviewContent(
     categories: List<Category>,
     onCategoryClick: (id: Long) -> Unit
 ) {
+
     Surface(
         color = MaterialTheme.colors.background,
         modifier = Modifier
@@ -77,12 +114,23 @@ fun OverviewContent(
 
 @Composable
 fun BackgroundCircle() {
-    Box(
+    val color = MaterialTheme.colors.primary
+    Canvas(
         modifier = Modifier
-            .absoluteOffset(y = (-500).dp)
-            .size(400.dp)
-            .clip(RoundedCornerShape(80.dp))
-            .background(MaterialTheme.colors.primary)
+            .fillMaxWidth()
+            .height(300.dp),
+        onDraw = {
+            val canvasWidth = size.width
+            val canvasHeight = size.height
+            drawArc(
+                color = color,
+                startAngle = 0f,
+                sweepAngle = 180f,
+                useCenter = true,
+                topLeft = Offset(-canvasWidth / 2, -canvasHeight / 2),
+                size = Size(canvasWidth * 2, canvasHeight)
+            )
+        }
     )
 }
 
@@ -178,6 +226,5 @@ fun CategoryItem(
         )
     }
 }
-
 
 
