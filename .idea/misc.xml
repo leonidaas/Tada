@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/ic_almond.xml" value="0.261" />
         <entry key="app/src/main/res/drawable/ic_baseline_bathtub_24.xml" value="0.107" />
         <entry key="app/src/main/res/drawable/ic_baseline_more_vert_24.xml" value="0.107" />
       </map>
