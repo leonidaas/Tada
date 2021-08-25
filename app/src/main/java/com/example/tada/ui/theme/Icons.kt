@@ -1,6 +1,5 @@
 package com.example.tada.ui.theme
 
-import android.graphics.drawable.Drawable
 import com.example.tada.R
 
 val icons: List<Int>
