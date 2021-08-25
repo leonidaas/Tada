@@ -1,6 +1,5 @@
 package com.example.tada.screens.overview
 
-import androidx.compose.runtime.neverEqualPolicy
 import androidx.lifecycle.ViewModel
 import com.example.tada.TaskRepository
 import com.example.tada.extensions.onDefault
@@ -9,8 +8,6 @@ import com.example.tada.model.Category
 import com.example.tada.model.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
-import java.lang.reflect.Constructor
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel

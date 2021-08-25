@@ -1,6 +1,5 @@
 package com.example.tada.screens.overview
 
-import android.icu.text.Transliterator
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
