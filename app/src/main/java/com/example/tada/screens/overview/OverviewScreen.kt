@@ -1,12 +1,12 @@
 package com.example.tada.screens.overview
 
+import android.icu.text.Transliterator
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -22,7 +22,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tada.R
 import com.example.tada.model.Category
 import com.example.tada.ui.theme.icons
-import java.util.*
 import kotlin.random.Random
 
 @Composable
@@ -39,6 +38,15 @@ fun OverviewScreen(
                 onCategoryClick = onCategoryClick
             )
         },
+        floatingActionButtonPosition = FabPosition.Center,
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = {
+
+                },
+                text = { Text("Add category") }
+            )
+        }
     )
 }
 
