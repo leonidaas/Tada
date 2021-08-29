@@ -1,4 +1,4 @@
-package com.example.tada.data
+package com.example.tada.data.clients
 
 import com.example.tada.data.result.RoomCategoryResult
 import com.example.tada.data.room.TadaDatabase
