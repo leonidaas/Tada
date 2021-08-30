@@ -1,54 +1,46 @@
 package com.example.tada.screens.overview
 
 import androidx.lifecycle.ViewModel
-import com.example.tada.TaskRepository
+import androidx.lifecycle.viewModelScope
 import com.example.tada.extensions.onDefault
 import com.example.tada.model.Category
-import com.example.tada.model.Task
+import com.example.tada.repository.TaskRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 sealed class OverviewScreenAction {
-    object CreateCategory : OverviewScreenAction()
+    class CategoriesLoaded(val categories: List<Category>) : OverviewScreenAction()
     class CategoryCreated(val category: Category) : OverviewScreenAction()
     class CategoryClicked(val id: Long) : OverviewScreenAction()
 }
 
 data class OverviewScreenState(
-    val categories: List<Category> = emptyList(),
-    val bottomSheetCollapsed: Boolean = true
-)
+    val categories: List<Category>,
+    val isLoading: Boolean
+) {
+    companion object {
+        fun initial() = OverviewScreenState(emptyList(), false)
+    }
+}
 
 @HiltViewModel
 class OverviewViewmodel @Inject constructor(
-    repository: TaskRepository
+    private val repository: TaskRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(OverviewScreenState())
-    val state: StateFlow<OverviewScreenState>
-        get() = _state
+    private val _state = MutableStateFlow(OverviewScreenState.initial())
+    val state: StateFlow<OverviewScreenState> = _state
 
     private val pendingActions = MutableSharedFlow<OverviewScreenAction>()
 
-//    val tasks = listOf(
-//        Task(1, "Aufräumen", false),
-//        Task(1, "Aufräumen", false),
-//        Task(1, "Aufräumen", false),
-//        Task(1, "Aufräumen", false)
-//    )
-//
-//    private val categories = listOf(
-//        Category(1, "Personal", tasks),
-//        Category(2, "Work", tasks),
-//        Category(3, "Kitchen", tasks),
-//    )
+    val categories = repository.getCategories().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     init {
         onDefault {
             pendingActions.collect { action ->
                 val newState = when (action) {
-                    is OverviewScreenAction.CreateCategory -> createCategoryReducer(
+                    is OverviewScreenAction.CategoriesLoaded -> categoriesLoadedReducer(
                         state.value,
                         action
                     )
@@ -64,6 +56,12 @@ class OverviewViewmodel @Inject constructor(
                 }
 
                 _state.emit(newState)
+            }
+
+            categories.collectLatest {
+                submitAction(
+                    OverviewScreenAction.CategoriesLoaded(it)
+                )
             }
         }
     }

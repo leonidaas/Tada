@@ -18,4 +18,8 @@ abstract class TadaDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao
 
+    companion object {
+        val DATABASE_NAME = "tadaDatabase"
+    }
+
 }

@@ -7,10 +7,7 @@ import androidx.room.PrimaryKey
 
 
 @Entity(
-    tableName = "categories",
-    indices = [
-        Index("id", unique = true)
-    ]
+    tableName = "categories"
 )
 data class RoomCategory (
     @PrimaryKey(autoGenerate = true)

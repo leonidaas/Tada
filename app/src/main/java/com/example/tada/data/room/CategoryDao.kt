@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoryDao : RoomBaseDao<RoomCategory> {
 
+    @Transaction
     @Query("SELECT * FROM categories")
-    suspend fun getAll(): Flow<List<RoomCategoryResult>>
+    fun getAll(): Flow<List<RoomCategoryResult>>
 
     @Query("DELETE FROM categories WHERE id = :categoryId")
     fun deleteCategory(categoryId: Long)

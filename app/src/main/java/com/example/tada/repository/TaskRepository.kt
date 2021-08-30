@@ -1,19 +1,20 @@
 package com.example.tada.repository
 
-import com.example.tada.data.room.CategoryDao
+import com.example.tada.data.clients.CategoryDatabaseClient
 import com.example.tada.model.Category
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 
 class TaskRepository @Inject constructor(
-    private val categoryDao: CategoryDao
+    private val categoryClient: CategoryDatabaseClient
 ) {
 
     fun getCategories(): Flow<List<Category>> {
-        return flowOf(listOf(Category(123, "Adw", listOf())))
+        return categoryClient.getAll()
     }
 
+    suspend fun saveCategory(title: String) {
+        categoryClient.save(title)
+    }
 
 }

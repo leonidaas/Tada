@@ -1,10 +1,11 @@
 package com.example.tada.screens.overview
 
-fun createCategoryReducer(
+
+fun categoriesLoadedReducer(
     state: OverviewScreenState,
-    action: OverviewScreenAction.CreateCategory
+    action: OverviewScreenAction.CategoriesLoaded
 ): OverviewScreenState {
-    return state.copy(bottomSheetCollapsed = false)
+    return state.copy(categories = action.categories)
 }
 
 fun categoryCreatedReducer(

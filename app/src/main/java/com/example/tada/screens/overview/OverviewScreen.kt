@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,57 +35,28 @@ import kotlin.random.Random
 @Composable
 fun OverviewScreen(
     viewModel: OverviewViewmodel = hiltViewModel(),
-    onCategoryClick: (id: Long) -> Unit
+    onCategoryClick: (id: Long) -> Unit = {},
+    onAddCategoryClick: () -> Unit = {}
 ) {
-    val state = viewModel.state.collectAsState()
+//    val state by viewModel.state.collectAsState()
+    val categories by viewModel.categories.collectAsState()
 
     Scaffold(
         content = {
             OverviewContent(
-                categories = state.value.categories,
+                categories = categories,
                 onCategoryClick = onCategoryClick
             )
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = {
-                          viewModel.submitAction(OverviewScreenAction.CreateCategory)
-                },
+                onClick = onAddCategoryClick,
                 text = { Text("Add category") }
             )
         }
     )
 }
-
-//@Composable
-//fun BottomSheetDialog(
-//    isCollapsed: Boolean,
-//    sheetState: BottomSheetScaffoldState
-//) {
-//
-//    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-//        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
-//    )
-//
-//    BottomSheetScaffold(
-//        scaffoldState = sheetState,
-//        sheetShape = RoundedCornerShape(32.dp),
-//        sheetContent = {
-//            Box(
-//                Modifier
-//                    .fillMaxWidth()
-//                    .height(200.dp)
-//            ) {
-//                Text(text = "Hallo Welt")
-//            }
-//        }, sheetPeekHeight = 0.dp
-//    ) {
-//        Scaffold {
-//
-//        }
-//    }
-//}
 
 @Composable
 fun OverviewContent(
@@ -141,7 +113,7 @@ fun OverviewHeader() {
             .padding(start = 36.dp, top = 20.dp)
             .fillMaxWidth(0.8f)
     ) {
-        Text(style = MaterialTheme.typography.h5, text = "Hello there")
+        Text(style = MaterialTheme.typography.h5, text = "Hey there")
         Text(style = MaterialTheme.typography.body1, text = "Today you have 4 tasks")
     }
 }

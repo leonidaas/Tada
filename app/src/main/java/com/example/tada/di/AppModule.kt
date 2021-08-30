@@ -2,10 +2,10 @@ package com.example.tada.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.tada.TaskRepository
+import com.example.tada.data.clients.CategoryDatabaseClient
 import com.example.tada.data.room.CategoryDao
 import com.example.tada.data.room.TadaDatabase
-import com.example.tada.model.Task
+import com.example.tada.repository.TaskRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,18 +19,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTaskRepository(): TaskRepository {
-        return TaskRepository()
-    }
-
-    @Provides
-    @Singleton
     fun provideTadaDatabase(@ApplicationContext appContext: Context): TadaDatabase {
         return Room.databaseBuilder(
             appContext,
             TadaDatabase::class.java,
-            "TadaDatabase"
-        ).build()
+            TadaDatabase.DATABASE_NAME
+        )
+            .fallbackToDestructiveMigration()
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDatabaseClient(tadaDatabase: TadaDatabase): CategoryDatabaseClient {
+        return CategoryDatabaseClient(tadaDatabase)
     }
 
     @Provides
@@ -38,5 +40,12 @@ object AppModule {
     fun provideCategoryDao(tadaDatabase: TadaDatabase): CategoryDao {
         return tadaDatabase.categoryDao()
     }
+
+    @Provides
+    @Singleton
+    fun provideTaskRepository(categoryDatabaseClient: CategoryDatabaseClient): TaskRepository {
+        return TaskRepository(categoryDatabaseClient)
+    }
+
 
 }
