@@ -9,66 +9,61 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
-sealed class OverviewScreenAction {
-    class CategoriesLoaded(val categories: List<Category>) : OverviewScreenAction()
-    class CategoryCreated(val category: Category) : OverviewScreenAction()
-    class CategoryClicked(val id: Long) : OverviewScreenAction()
-}
 
-data class OverviewScreenState(
-    val categories: List<Category>,
-    val isLoading: Boolean
-) {
-    companion object {
-        fun initial() = OverviewScreenState(emptyList(), false)
-    }
-}
+//data class OverviewScreenState(
+//    val categories: List<Category>,
+//    val isLoading: Boolean
+//) {
+//    companion object {
+//        fun initial() = OverviewScreenState(emptyList(), false)
+//    }
+//}
 
 @HiltViewModel
 class OverviewViewmodel @Inject constructor(
     private val repository: TaskRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(OverviewScreenState.initial())
-    val state: StateFlow<OverviewScreenState> = _state
-
-    private val pendingActions = MutableSharedFlow<OverviewScreenAction>()
+//    private val _state = MutableStateFlow(OverviewScreenState.initial())
+//    val state: StateFlow<OverviewScreenState> = _state
+//
+//    private val pendingActions = MutableSharedFlow<OverviewScreenAction>()
 
     val categories = repository.getCategories().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     init {
-        onDefault {
-            pendingActions.collect { action ->
-                val newState = when (action) {
-                    is OverviewScreenAction.CategoriesLoaded -> categoriesLoadedReducer(
-                        state.value,
-                        action
-                    )
-                    is OverviewScreenAction.CategoryCreated -> categoryCreatedReducer(
-                        state.value,
-                        action
-                    )
-                    is OverviewScreenAction.CategoryClicked -> categoryClickedReducer(
-                        state.value,
-                        action
-                    )
-
-                }
-
-                _state.emit(newState)
-            }
-
-            categories.collectLatest {
-                submitAction(
-                    OverviewScreenAction.CategoriesLoaded(it)
-                )
-            }
-        }
+//        onDefault {
+//            pendingActions.collect { action ->
+//                val newState = when (action) {
+//                    is OverviewScreenAction.CategoriesLoaded -> categoriesLoadedReducer(
+//                        state.value,
+//                        action
+//                    )
+//                    is OverviewScreenAction.CategoryCreated -> categoryCreatedReducer(
+//                        state.value,
+//                        action
+//                    )
+//                    is OverviewScreenAction.CategoryClicked -> categoryClickedReducer(
+//                        state.value,
+//                        action
+//                    )
+//
+//                }
+//
+//                _state.emit(newState)
+//            }
+//
+//            categories.collectLatest {
+//                submitAction(
+//                    OverviewScreenAction.CategoriesLoaded(it)
+//                )
+//            }
+//        }
     }
 
-    fun submitAction(action: OverviewScreenAction) {
-        onDefault {
-            pendingActions.emit(action)
-        }
-    }
+//    fun submitAction(action: OverviewScreenAction) {
+//        onDefault {
+//            pendingActions.emit(action)
+//        }
+//    }
 }
