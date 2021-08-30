@@ -9,6 +9,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.materialIcon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tada.R
 import com.example.tada.model.Category
+import com.example.tada.ui.components.BackgroundCircle
 import com.example.tada.ui.theme.icons
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.coroutineScope
@@ -48,12 +52,13 @@ fun OverviewScreen(
                 onCategoryClick = onCategoryClick
             )
         },
-        floatingActionButtonPosition = FabPosition.Center,
+        floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onAddCategoryClick,
-                text = { Text("Add category") }
-            )
+            FloatingActionButton(
+                onClick = onAddCategoryClick
+            ) {
+                Icon(Icons.Default.Add, "add")
+            }
         }
     )
 }
@@ -82,28 +87,6 @@ fun OverviewContent(
             )
         }
     }
-}
-
-@Composable
-fun BackgroundCircle() {
-    val color = MaterialTheme.colors.primary
-    Canvas(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp),
-        onDraw = {
-            val canvasWidth = size.width
-            val canvasHeight = size.height
-            drawArc(
-                color = color,
-                startAngle = 0f,
-                sweepAngle = 180f,
-                useCenter = true,
-                topLeft = Offset(-canvasWidth / 2, -canvasHeight / 2),
-                size = Size(canvasWidth * 2, canvasHeight)
-            )
-        }
-    )
 }
 
 @Composable
