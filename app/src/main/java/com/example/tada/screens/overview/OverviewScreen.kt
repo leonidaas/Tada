@@ -31,6 +31,7 @@ import com.example.tada.R
 import com.example.tada.model.Category
 import com.example.tada.ui.components.BackgroundCircle
 import com.example.tada.ui.theme.icons
+import com.example.tada.util.getMatchingIcon
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -146,7 +147,7 @@ fun CategoryItem(
                 .align(Alignment.CenterStart)
         ) {
             Image(
-                painterResource(id = icons[Random.nextInt(icons.size)]),
+                painterResource(id = getMatchingIcon(category.id)),
                 contentDescription = "bathtub",
                 modifier = Modifier
                     .size(48.dp)

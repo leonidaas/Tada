@@ -1,11 +1,14 @@
 package com.example.tada.screens.detail
 
+import android.graphics.Paint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
+import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -24,10 +27,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.tada.R
 import com.example.tada.model.Category
 import com.example.tada.model.Task
 import com.example.tada.ui.components.BackgroundCircle
 import com.example.tada.ui.theme.icons
+import com.example.tada.util.getMatchingIcon
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -47,15 +52,12 @@ fun DetailScreen(
     Scaffold(
         content = {
             DetailContent(
-                category,
+                category = category,
                 onCheckChange = { id, checked ->
                     viewModel.onCheckChange(id, checked)
-                }
+                },
+                onNavigateUp = onNavigateUp
             )
-        },
-        topBar = {
-
-          Icon(Icons.Default.ArrowBack, "bac")
         },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
@@ -72,17 +74,41 @@ fun DetailScreen(
 @Composable
 fun DetailContent(
     category: Category?,
-    onCheckChange: (Task, Boolean) -> Unit
+    onCheckChange: (Task, Boolean) -> Unit,
+    onNavigateUp: () -> Unit = {},
+    onMoreButtonClick: () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
     ) {
         BackgroundCircle()
-
         Column(
             modifier = Modifier.padding(32.dp)
         ) {
+
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "bac",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .align(Alignment.CenterStart)
+                        .clickable { onNavigateUp() }
+                )
+
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_more_vert_24),
+                    contentDescription = "bac",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .align(Alignment.CenterEnd)
+                        .clickable { onMoreButtonClick() }
+                )
+            }
+
             Spacer(modifier = Modifier.height(64.dp))
             TaskHeader(
                 category = category
@@ -106,7 +132,7 @@ fun TaskHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painterResource(id = icons[Random.nextInt(icons.size)]),
+            painterResource(id = getMatchingIcon(category?.id ?: "")),
             contentDescription = "bathtub",
             modifier = Modifier
                 .size(48.dp)
@@ -169,7 +195,7 @@ fun TaskItem(
         Text(
             style = MaterialTheme.typography.body1,
             text = task.text,
-            textDecoration = if(task.isDone) TextDecoration.LineThrough else TextDecoration.None
+            textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None
         )
     }
 
