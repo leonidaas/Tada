@@ -39,7 +39,7 @@ import kotlin.random.Random
 @Composable
 fun OverviewScreen(
     viewModel: OverviewViewmodel = hiltViewModel(),
-    onCategoryClick: (id: Long) -> Unit = {},
+    onCategoryClick: (id: String) -> Unit = {},
     onAddCategoryClick: () -> Unit = {}
 ) {
 //    val state by viewModel.state.collectAsState()
@@ -66,7 +66,7 @@ fun OverviewScreen(
 @Composable
 fun OverviewContent(
     categories: List<Category>,
-    onCategoryClick: (id: Long) -> Unit
+    onCategoryClick: (id: String) -> Unit
 ) {
 
     Surface(
@@ -106,7 +106,7 @@ fun OverviewHeader() {
 @Composable
 fun OverviewList(
     categories: List<Category>,
-    onCategoryClick: (id: Long) -> Unit,
+    onCategoryClick: (id: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -128,7 +128,7 @@ fun OverviewList(
 @Composable
 fun CategoryItem(
     category: Category,
-    onCategoryClick: (id: Long) -> Unit,
+    onCategoryClick: (id: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(

@@ -9,9 +9,10 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "categories"
 )
-data class RoomCategory (
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+data class RoomCategory(
+    @PrimaryKey
+    @ColumnInfo(name = "id")
+    val id: String,
 
     @ColumnInfo(name = "title")
     val title: String

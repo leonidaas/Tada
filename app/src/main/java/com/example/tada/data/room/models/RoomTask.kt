@@ -10,9 +10,9 @@ import org.w3c.dom.Text
 )
 data class RoomTask(
     @PrimaryKey
-    val id: Long,
+    val id: String,
 
-    val categoryId: Long,
+    val categoryId: String,
 
     val task: String,
 

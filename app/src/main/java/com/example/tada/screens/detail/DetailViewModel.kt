@@ -1,4 +1,37 @@
 package com.example.tada.screens.detail
 
-class DetailViewModel {
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.tada.di.AppModule_ProvideTaskRepositoryFactory
+import com.example.tada.extensions.onDefault
+import com.example.tada.repository.TaskRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
+import javax.inject.Inject
+
+@HiltViewModel
+class DetailViewModel @Inject constructor(
+    val taskRepository: TaskRepository
+) : ViewModel() {
+
+
+    val categoryId = MutableStateFlow<String>("")
+
+    val tasks = categoryId.flatMapLatest {
+        taskRepository
+            .getCategory(it)
+
+    }.stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+
+    fun initalize(id: String) {
+        onDefault {
+            categoryId.emit(id)
+        }
+    }
+
+    fun onCheckChange(taskId: String, checked: Boolean) {
+        //update tasks in database
+    }
+
 }

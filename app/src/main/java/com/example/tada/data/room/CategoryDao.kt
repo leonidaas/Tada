@@ -12,7 +12,11 @@ interface CategoryDao : RoomBaseDao<RoomCategory> {
     @Query("SELECT * FROM categories")
     fun getAll(): Flow<List<RoomCategoryResult>>
 
+    @Transaction
+    @Query("SELECT * FROM categories where id = :categoryId")
+    fun get(categoryId: String): Flow<RoomCategoryResult>
+
     @Query("DELETE FROM categories WHERE id = :categoryId")
-    fun deleteCategory(categoryId: Long)
+    fun deleteCategory(categoryId: String)
 
 }

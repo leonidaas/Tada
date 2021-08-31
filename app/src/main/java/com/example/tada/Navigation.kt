@@ -43,15 +43,23 @@ fun Navigation() {
             }
 
             composable(
-                route = TadaScreen.Detail.withArgs("categoryId"),
+                route = TadaScreen.Detail.route + "{categoryId}",
                 arguments = listOf(
                     navArgument("categoryId") {
-                        type = NavType.LongType
+                        type = NavType.StringType
                         nullable = false
                     }
                 )
-            ) {
-                DetailScreen(navController = navController)
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("categoryId")
+                if (id != null) {
+                    DetailScreen(
+                        id,
+                        onNavigateUp = {
+                            navController.navigate(TadaScreen.Overview.route)
+                        }
+                    )
+                }
             }
 
             bottomSheet(

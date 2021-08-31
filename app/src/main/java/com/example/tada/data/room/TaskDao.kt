@@ -10,4 +10,5 @@ interface TaskDao : RoomBaseDao<RoomTask> {
 
     @Query("SELECT * FROM tasks WHERE categoryId = :categoryId")
     fun getAllTasksFromCategory(categoryId: Long): List<RoomTask>
+
 }

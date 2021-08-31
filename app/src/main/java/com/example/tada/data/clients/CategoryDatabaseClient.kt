@@ -3,12 +3,14 @@ package com.example.tada.data.clients
 import com.example.tada.data.result.RoomCategoryResult
 import com.example.tada.data.room.TadaDatabase
 import com.example.tada.data.room.models.RoomCategory
+import com.example.tada.data.room.models.RoomTask
 import com.example.tada.model.Category
 import com.example.tada.model.Task
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.util.*
 import javax.inject.Inject
 
 class CategoryDatabaseClient @Inject constructor(
@@ -25,6 +27,12 @@ class CategoryDatabaseClient @Inject constructor(
             .map { it.map(::roomToModel) }
     }
 
+    fun get(categoryId: String): Flow<Category> {
+        return categoryDao
+            .get(categoryId)
+            .map { roomToModel(it) }
+    }
+
     suspend fun delete(category: Category) {
         withContext(Dispatchers.IO) {
              categoryDao.deleteCategory(category.id)
@@ -32,9 +40,18 @@ class CategoryDatabaseClient @Inject constructor(
     }
 
     suspend fun save(title: String) {
+        val id = UUID.randomUUID().toString()
         withContext(Dispatchers.IO) {
             categoryDao.insert(
-                RoomCategory(title = title)
+                RoomCategory(id = id, title = title)
+            )
+            //delete later
+            tasksDao.insert(
+                listOf(
+                    RoomTask(UUID.randomUUID().toString(), id, "Aufräumen", false),
+                    RoomTask(UUID.randomUUID().toString(), id, "Arbeiten", false),
+                    RoomTask(UUID.randomUUID().toString(), id, "Gassi gehen", false),
+                )
             )
         }
     }
