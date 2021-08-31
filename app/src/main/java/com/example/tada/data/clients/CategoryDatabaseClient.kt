@@ -35,7 +35,7 @@ class CategoryDatabaseClient @Inject constructor(
 
     suspend fun delete(category: Category) {
         withContext(Dispatchers.IO) {
-             categoryDao.deleteCategory(category.id)
+            categoryDao.deleteCategory(category.id)
         }
     }
 
@@ -55,6 +55,12 @@ class CategoryDatabaseClient @Inject constructor(
             )
         }
     }
+
+    suspend fun update(task: Task) {
+        withContext(Dispatchers.IO) {
+            tasksDao.update(modelToRoom(task))
+        }
+    }
 }
 
 fun roomToModel(result: RoomCategoryResult): Category =
@@ -62,6 +68,14 @@ fun roomToModel(result: RoomCategoryResult): Category =
         result.category.id,
         result.category.title,
         result.tasks.map {
-            Task(it.id, it.task, it.completed)
+            Task(it.id, result.category.id, it.task, it.completed)
         }
+    )
+
+fun modelToRoom(task: Task): RoomTask =
+    RoomTask(
+        task.id,
+        task.categoryId,
+        task.text,
+        task.isDone
     )
