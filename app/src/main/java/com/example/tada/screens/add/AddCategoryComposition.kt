@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tada.screens.add.AddCategoryViewModel
+import com.google.accompanist.insets.imePadding
 
 @Composable
 fun AddCategoryScreen(
@@ -22,6 +23,7 @@ fun AddCategoryScreen(
 
     Column(
         Modifier
+            .imePadding()
             .fillMaxWidth()
     ) {
         TextInput(

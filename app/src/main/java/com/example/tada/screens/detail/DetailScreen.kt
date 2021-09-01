@@ -39,13 +39,10 @@ import kotlin.random.Random
 
 @Composable
 fun DetailScreen(
-    categoryId: String,
-    viewModel: DetailViewModel = hiltViewModel(),
+    viewModel: DetailViewModel,
     onAddButtonClick: () -> Unit = {},
     onNavigateUp: () -> Unit = {}
 ) {
-
-    viewModel.initalize(categoryId)
 
     val category by viewModel.tasks.collectAsState()
 

@@ -1,6 +1,7 @@
 package com.example.tada
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.plusAssign
 import com.example.tada.screens.AddCategoryScreen
 import com.example.tada.screens.detail.DetailScreen
+import com.example.tada.screens.detail.DetailViewModel
 import com.example.tada.screens.overview.OverviewScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
@@ -54,7 +56,7 @@ fun Navigation() {
                 val id = backStackEntry.arguments?.getString("categoryId")
                 if (id != null) {
                     DetailScreen(
-                        id,
+                        viewModel = hiltViewModel(backStackEntry),
                         onNavigateUp = {
                             navController.navigate(TadaScreen.Overview.route)
                         }
