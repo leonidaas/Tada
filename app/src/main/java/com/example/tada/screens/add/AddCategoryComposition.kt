@@ -67,6 +67,7 @@ fun TextInput(
     onCategoryTitleChange: (String) -> Unit
 ) {
     OutlinedTextField(
+        placeholder = { if (text.isEmpty()) Text("Title") else Text("") },
         modifier = modifier,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             cursorColor = MaterialTheme.colors.secondary,
