@@ -55,14 +55,6 @@ fun DetailScreen(
                 },
                 onNavigateUp = onNavigateUp
             )
-        },
-        floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddButtonClick
-            ) {
-                Icon(Icons.Default.Add, "add")
-            }
         }
     )
 }

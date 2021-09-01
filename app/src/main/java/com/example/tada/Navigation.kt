@@ -1,6 +1,9 @@
 package com.example.tada
 
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,6 +20,7 @@ import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import com.google.accompanist.navigation.material.bottomSheet
 import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 
+@ExperimentalMaterialApi
 @ExperimentalMaterialNavigationApi
 @Composable
 fun Navigation() {
@@ -24,7 +28,10 @@ fun Navigation() {
     val bottomSheetNavigator = rememberBottomSheetNavigator()
     navController.navigatorProvider += bottomSheetNavigator
 
-    ModalBottomSheetLayout(bottomSheetNavigator = bottomSheetNavigator) {
+    ModalBottomSheetLayout(
+        bottomSheetNavigator = bottomSheetNavigator,
+        sheetShape = RoundedCornerShape(topStart = 32.dp, topEnd = 24.dp)
+    ) {
         NavHost(
             navController = navController,
             startDestination = TadaScreen.Overview.route
@@ -35,7 +42,7 @@ fun Navigation() {
                 OverviewScreen(
                     onCategoryClick = { categoryId ->
                         navController.navigate(
-                            TadaScreen.Detail.withArgs("$categoryId")
+                            TadaScreen.Detail.withArgs(categoryId)
                         )
                     },
                     onAddCategoryClick = {
