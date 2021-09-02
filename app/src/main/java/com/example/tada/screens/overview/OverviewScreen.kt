@@ -147,7 +147,7 @@ fun CategoryItem(
                 .align(Alignment.CenterStart)
         ) {
             Image(
-                painterResource(id = getMatchingIcon(category.id)),
+                painterResource(id = icons[category.imageId]),
                 contentDescription = "bathtub",
                 modifier = Modifier
                     .size(48.dp)

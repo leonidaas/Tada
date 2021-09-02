@@ -17,15 +17,24 @@ class AddCategoryViewModel @Inject constructor(
     private val _categoryName = MutableStateFlow("")
     val categoryName: StateFlow<String> = _categoryName
 
-    fun addCategory(title: String) {
+    private val _categoryImageId = MutableStateFlow(0)
+    val categoryImageId: StateFlow<Int> = _categoryImageId
+
+    fun addCategory(imageId: Int, title: String) {
         onIO {
-            taskRepository.saveCategory(title)
+            taskRepository.saveCategory(imageId, title)
         }
     }
 
     fun onCategoryTitleChange(title: String) {
         onDefault {
             _categoryName.emit(title)
+        }
+    }
+
+    fun onCategoryImageChange(id: Int) {
+        onDefault {
+            _categoryImageId.emit(id)
         }
     }
 }

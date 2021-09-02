@@ -35,6 +35,7 @@ fun AddCategoryScreen(
     onCategoryAdd: () -> Unit = {}
 ) {
     val name by viewModel.categoryName.collectAsState()
+    val categoryImageId by viewModel.categoryImageId.collectAsState()
 
     Column(
         Modifier
@@ -52,14 +53,14 @@ fun AddCategoryScreen(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
         ) {
-            //nothing
+            viewModel.onCategoryImageChange(it)
         }
 
         TextInput(
-            Modifier
+            modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(top = 16.dp),
-            name
+            text = name
         ) {
             viewModel.onCategoryTitleChange(it)
         }
@@ -72,7 +73,7 @@ fun AddCategoryScreen(
                 backgroundColor = MaterialTheme.colors.secondary
             ),
             onClick = {
-                viewModel.addCategory(name)
+                viewModel.addCategory(categoryImageId, name)
                 onCategoryAdd.invoke()
             }
         ) {
@@ -88,7 +89,7 @@ fun AddCategoryScreen(
 fun ImageSelection(
     images: List<Int>,
     modifier: Modifier,
-    onImageSelectionChange: () -> Unit,
+    onImageSelectionChange: (Int) -> Unit,
 ) {
     val pagerState = rememberPagerState(
         pageCount = images.size,
@@ -100,7 +101,7 @@ fun ImageSelection(
             .fillMaxWidth(),
         state = pagerState
     ) { page ->
-
+        onImageSelectionChange.invoke(pagerState.currentPage)
         Card(
             elevation = 0.dp,
             modifier = Modifier

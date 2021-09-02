@@ -23,8 +23,8 @@ class TaskRepository @Inject constructor(
         return categoryClient.update(task)
     }
 
-    suspend fun saveCategory(title: String) {
-        categoryClient.save(title)
+    suspend fun saveCategory(imageId: Int, title: String) {
+        categoryClient.save(imageId, title)
     }
 
 }

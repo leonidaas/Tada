@@ -1,41 +1,27 @@
 package com.example.tada.screens.detail
 
-import android.graphics.Paint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.SemanticsProperties.Text
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.example.tada.R
 import com.example.tada.model.Category
 import com.example.tada.model.Task
 import com.example.tada.ui.components.BackgroundCircle
 import com.example.tada.ui.theme.icons
-import com.example.tada.util.getMatchingIcon
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 @Composable
 fun DetailScreen(
@@ -45,24 +31,26 @@ fun DetailScreen(
 ) {
 
     val category by viewModel.tasks.collectAsState()
+    if (category != null) {
+        Scaffold(
+            content = {
+                DetailContent(
+                    category = category!!,
+                    onCheckChange = { id, checked ->
+                        viewModel.onCheckChange(id, checked)
+                    },
+                    onNavigateUp = onNavigateUp
+                )
+            }
+        )
+    }
 
-    Scaffold(
-        content = {
-            DetailContent(
-                category = category,
-                onCheckChange = { id, checked ->
-                    viewModel.onCheckChange(id, checked)
-                },
-                onNavigateUp = onNavigateUp
-            )
-        }
-    )
 }
 
 
 @Composable
 fun DetailContent(
-    category: Category?,
+    category: Category,
     onCheckChange: (Task, Boolean) -> Unit,
     onNavigateUp: () -> Unit = {},
     onMoreButtonClick: () -> Unit = {}
@@ -115,13 +103,13 @@ fun DetailContent(
 
 @Composable
 fun TaskHeader(
-    category: Category?
+    category: Category
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painterResource(id = getMatchingIcon(category?.id ?: "")),
+            painterResource(id = icons[category.imageId]),
             contentDescription = "bathtub",
             modifier = Modifier
                 .size(48.dp)

@@ -2,7 +2,6 @@ package com.example.tada.data.room.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Index
 import androidx.room.PrimaryKey
 
 
@@ -13,6 +12,9 @@ data class RoomCategory(
     @PrimaryKey
     @ColumnInfo(name = "id")
     val id: String,
+
+    @ColumnInfo(name = "imageId")
+    val imageId: Int,
 
     @ColumnInfo(name = "title")
     val title: String

@@ -39,11 +39,11 @@ class CategoryDatabaseClient @Inject constructor(
         }
     }
 
-    suspend fun save(title: String) {
+    suspend fun save(imageId: Int, title: String) {
         val id = UUID.randomUUID().toString()
         withContext(Dispatchers.IO) {
             categoryDao.insert(
-                RoomCategory(id = id, title = title)
+                RoomCategory(id = id, imageId = imageId, title = title)
             )
             //delete later
             tasksDao.insert(
@@ -66,6 +66,7 @@ class CategoryDatabaseClient @Inject constructor(
 fun roomToModel(result: RoomCategoryResult): Category =
     Category(
         result.category.id,
+        result.category.imageId,
         result.category.title,
         result.tasks.map {
             Task(it.id, result.category.id, it.task, it.completed)
