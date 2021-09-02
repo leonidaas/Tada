@@ -128,14 +128,19 @@ fun TaskHeader(
                 .align(Alignment.CenterVertically)
         )
         Spacer(Modifier.width(16.dp))
-        Column {
-            Text(
-                style = MaterialTheme.typography.caption,
-                text = "${category?.tasks?.size} Tasks"
-            )
+        Column(
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+        ) {
             Text(
                 style = MaterialTheme.typography.h4,
                 text = category?.title ?: ""
+            )
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                style = MaterialTheme.typography.subtitle2,
+                color = Color.LightGray,
+                text = "${category?.tasks?.size} Tasks"
             )
         }
     }

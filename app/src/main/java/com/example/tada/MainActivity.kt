@@ -12,8 +12,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.tada.ui.theme.TadaTheme
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 
+@ExperimentalPagerApi
 @ExperimentalMaterialApi
 @ExperimentalMaterialNavigationApi
 @AndroidEntryPoint

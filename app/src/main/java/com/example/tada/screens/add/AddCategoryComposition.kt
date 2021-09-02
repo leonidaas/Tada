@@ -1,24 +1,33 @@
 package com.example.tada.screens
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tada.screens.add.AddCategoryViewModel
+import com.example.tada.ui.theme.icons
 import com.google.accompanist.insets.imePadding
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.calculateCurrentOffsetForPage
+import com.google.accompanist.pager.rememberPagerState
+import com.google.android.material.math.MathUtils.lerp
+import kotlin.math.absoluteValue
 
+@ExperimentalPagerApi
 @ExperimentalMaterialApi
 @Composable
 fun AddCategoryScreen(
@@ -32,6 +41,20 @@ fun AddCategoryScreen(
             .imePadding()
             .fillMaxWidth()
     ) {
+
+        Text(
+            modifier = Modifier.padding(16.dp),
+            text = "Choose your weapon"
+        )
+
+        ImageSelection(
+            images = icons,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+        ) {
+            //nothing
+        }
+
         TextInput(
             Modifier
                 .align(Alignment.CenterHorizontally)
@@ -58,6 +81,68 @@ fun AddCategoryScreen(
     }
 
 
+}
+
+@ExperimentalPagerApi
+@Composable
+fun ImageSelection(
+    images: List<Int>,
+    modifier: Modifier,
+    onImageSelectionChange: () -> Unit,
+) {
+    val pagerState = rememberPagerState(
+        pageCount = images.size,
+        initialOffscreenLimit = 2
+    )
+
+    HorizontalPager(
+        modifier = modifier
+            .fillMaxWidth(),
+        state = pagerState
+    ) { page ->
+
+        Card(
+            elevation = 0.dp,
+            modifier = Modifier
+                .border(BorderStroke(0.dp, Color.Transparent))
+                .graphicsLayer {
+                    val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
+
+                    lerp(
+                        0.50f,
+                        1f,
+                        1f - pageOffset.coerceIn(0f, 1f)
+                    ).also { scale ->
+                        scaleX = scale
+                        scaleY = scale
+                    }
+
+                    alpha = lerp(
+                        0.5f,
+                        1f,
+                        1f - pageOffset.coerceIn(0f, 1f)
+                    )
+                }
+                .fillMaxWidth(0.4f)
+        ) {
+            Image(
+                painterResource(id = images[page]),
+                contentDescription = "bathtub",
+                modifier = Modifier
+                    .size(48.dp)
+                    .offset {
+                        val pageOffset =
+                            this@HorizontalPager.calculateCurrentOffsetForPage(page)
+                        // Then use it as a multiplier to apply an offset
+                        IntOffset(
+                            x = (36.dp * pageOffset).roundToPx(),
+                            y = 0
+                        )
+                    }
+
+            )
+        }
+    }
 }
 
 @Composable

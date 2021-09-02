@@ -77,6 +77,8 @@ dependencies {
     // If using insets-ui
     implementation "com.google.accompanist:accompanist-insets-ui:$accompanist"
 
+    implementation "com.google.accompanist:accompanist-pager:$accompanist"
+
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
