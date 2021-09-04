@@ -1,6 +1,5 @@
 package com.example.tada.screens.overview
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,19 +10,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.materialIcon
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,11 +23,6 @@ import com.example.tada.R
 import com.example.tada.model.Category
 import com.example.tada.ui.components.BackgroundCircle
 import com.example.tada.ui.theme.icons
-import com.example.tada.util.getMatchingIcon
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 @Composable
 fun OverviewScreen(
@@ -45,12 +32,17 @@ fun OverviewScreen(
 ) {
 //    val state by viewModel.state.collectAsState()
     val categories by viewModel.categories.collectAsState()
+    val expandedDropdown by viewModel.dropDownIsShown.collectAsState()
 
     Scaffold(
         content = {
             OverviewContent(
                 categories = categories,
-                onCategoryClick = onCategoryClick
+                onCategoryClick = onCategoryClick,
+                onMoreButtonClick = { viewModel.showDropdown(it) },
+                expandedDropdown = expandedDropdown,
+                onDismiss = { viewModel.showDropdown(false) },
+                onCategoryDelete = { viewModel.deleteCategory(it) }
             )
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -67,7 +59,11 @@ fun OverviewScreen(
 @Composable
 fun OverviewContent(
     categories: List<Category>,
-    onCategoryClick: (id: String) -> Unit
+    onCategoryClick: (id: String) -> Unit,
+    onMoreButtonClick: (Boolean) -> Unit,
+    expandedDropdown: Boolean,
+    onDismiss: () -> Unit,
+    onCategoryDelete: (id: String) -> Unit
 ) {
 
     Surface(
@@ -83,8 +79,12 @@ fun OverviewContent(
             OverviewList(
                 categories = categories,
                 onCategoryClick = onCategoryClick,
+                onMoreButtonClick = onMoreButtonClick,
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
+                    .align(Alignment.CenterHorizontally),
+                expandedDropdown = expandedDropdown,
+                onDismiss = onDismiss,
+                onCategoryDelete = onCategoryDelete
             )
         }
     }
@@ -108,6 +108,10 @@ fun OverviewHeader() {
 fun OverviewList(
     categories: List<Category>,
     onCategoryClick: (id: String) -> Unit,
+    onMoreButtonClick: (Boolean) -> Unit,
+    expandedDropdown: Boolean,
+    onDismiss: () -> Unit,
+    onCategoryDelete: (id: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -119,7 +123,11 @@ fun OverviewList(
         items(categories) { category ->
             CategoryItem(
                 category = category,
-                onCategoryClick = onCategoryClick
+                onCategoryClick = onCategoryClick,
+                onMoreButtonClick = onMoreButtonClick,
+                expandedDropdown = expandedDropdown,
+                onDismiss = onDismiss,
+                onCategoryDelete = onCategoryDelete
             )
         }
     }
@@ -130,6 +138,10 @@ fun OverviewList(
 fun CategoryItem(
     category: Category,
     onCategoryClick: (id: String) -> Unit,
+    onMoreButtonClick: (Boolean) -> Unit,
+    expandedDropdown: Boolean,
+    onCategoryDelete: (id: String) -> Unit,
+    onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -146,6 +158,7 @@ fun CategoryItem(
                 .padding(start = 16.dp)
                 .align(Alignment.CenterStart)
         ) {
+
             Image(
                 painterResource(id = icons[category.imageId]),
                 contentDescription = "bathtub",
@@ -170,6 +183,20 @@ fun CategoryItem(
                     text = "${category.tasks.size} Tasks"
                 )
             }
+
+        }
+
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd),
+        ) {
+            MoreDropdown(
+                expanded = expandedDropdown,
+                onEditClick = { /*TODO*/ },
+                onDeleteClick = { onCategoryDelete(category.id) },
+                onDismiss = onDismiss
+            )
         }
 
         Image(
@@ -179,7 +206,27 @@ fun CategoryItem(
                 .padding(8.dp)
                 .size(32.dp)
                 .align(Alignment.TopEnd)
+                .clickable { onMoreButtonClick(true) }
         )
+
+    }
+}
+
+@Composable
+fun MoreDropdown(
+    expanded: Boolean,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onDismiss: () -> Unit
+) {
+
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { onDismiss() }
+    ) {
+        DropdownMenuItem(onClick = onDeleteClick) {
+            Text("Delete")
+        }
     }
 }
 

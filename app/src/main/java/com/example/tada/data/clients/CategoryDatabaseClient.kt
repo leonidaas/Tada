@@ -33,9 +33,9 @@ class CategoryDatabaseClient @Inject constructor(
             .map { roomToModel(it) }
     }
 
-    suspend fun delete(category: Category) {
+    suspend fun delete(categoryId: String) {
         withContext(Dispatchers.IO) {
-            categoryDao.deleteCategory(category.id)
+            categoryDao.deleteCategory(categoryId)
         }
     }
 

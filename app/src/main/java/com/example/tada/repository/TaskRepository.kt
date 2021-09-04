@@ -19,6 +19,10 @@ class TaskRepository @Inject constructor(
         return categoryClient.get(categoryId)
     }
 
+    suspend fun deleteCategory(categoryId: String) {
+        categoryClient.delete(categoryId)
+    }
+
     suspend fun updateTask(task: Task) {
         return categoryClient.update(task)
     }
