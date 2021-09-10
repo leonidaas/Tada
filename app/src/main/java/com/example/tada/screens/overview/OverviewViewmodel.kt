@@ -15,12 +15,16 @@ class OverviewViewmodel @Inject constructor(
     private val repository: TaskRepository
 ) : ViewModel() {
 
-    private val _dropdownIsShown = MutableStateFlow(false)
-    val dropDownIsShown: StateFlow<Boolean> = _dropdownIsShown
+    private val _dropdownIsShownForCategory = MutableStateFlow(Pair("", false))
+    val dropDownIsShownForCategory: StateFlow<Pair<String, Boolean>> = _dropdownIsShownForCategory
 
-    fun showDropdown(shouldShow: Boolean) {
+    fun showDropdown(id: String? = null, shouldShow: Boolean) {
         onDefault {
-            _dropdownIsShown.emit(shouldShow)
+            if (id != null) {
+                _dropdownIsShownForCategory.emit(Pair(id, shouldShow))
+            } else {
+                _dropdownIsShownForCategory.emit(Pair("", shouldShow))
+            }
         }
     }
 
@@ -31,7 +35,7 @@ class OverviewViewmodel @Inject constructor(
 
     fun deleteCategory(categoryId: String) {
         onIO {
-            showDropdown(false)
+            showDropdown("", false)
             repository.deleteCategory(categoryId)
         }
     }

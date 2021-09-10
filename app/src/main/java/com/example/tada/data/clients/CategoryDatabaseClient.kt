@@ -8,7 +8,8 @@ import com.example.tada.model.Category
 import com.example.tada.model.Task
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
@@ -24,13 +25,13 @@ class CategoryDatabaseClient @Inject constructor(
     fun getAll(): Flow<List<Category>> {
         return categoryDao
             .getAll()
-            .map { it.map(::roomToModel) }
+            .mapNotNull { it.map(::roomToModel) }
     }
 
     fun get(categoryId: String): Flow<Category> {
         return categoryDao
             .get(categoryId)
-            .map { roomToModel(it) }
+            .mapNotNull { roomToModel(it) }
     }
 
     suspend fun delete(categoryId: String) {
@@ -45,14 +46,12 @@ class CategoryDatabaseClient @Inject constructor(
             categoryDao.insert(
                 RoomCategory(id = id, imageId = imageId, title = title)
             )
-            //delete later
-            tasksDao.insert(
-                listOf(
-                    RoomTask(UUID.randomUUID().toString(), id, "Aufräumen", false),
-                    RoomTask(UUID.randomUUID().toString(), id, "Arbeiten", false),
-                    RoomTask(UUID.randomUUID().toString(), id, "Gassi gehen", false),
-                )
-            )
+        }
+    }
+
+    suspend fun addTask(task: Task) {
+        withContext(Dispatchers.IO) {
+            tasksDao.insert(modelToRoom(task))
         }
     }
 
@@ -68,9 +67,10 @@ fun roomToModel(result: RoomCategoryResult): Category =
         result.category.id,
         result.category.imageId,
         result.category.title,
-        result.tasks.map {
-            Task(it.id, result.category.id, it.task, it.completed)
-        }
+        result.tasks
+            .map {
+                Task(it.id, result.category.id, it.task, it.completed)
+            }
     )
 
 fun modelToRoom(task: Task): RoomTask =

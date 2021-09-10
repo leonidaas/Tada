@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tada.R
 import com.example.tada.model.Category
 import com.example.tada.ui.components.BackgroundCircle
+import com.example.tada.ui.components.OverviewMoreDropdown
 import com.example.tada.ui.theme.icons
 
 @Composable
@@ -30,18 +31,17 @@ fun OverviewScreen(
     onCategoryClick: (id: String) -> Unit = {},
     onAddCategoryClick: () -> Unit = {}
 ) {
-//    val state by viewModel.state.collectAsState()
     val categories by viewModel.categories.collectAsState()
-    val expandedDropdown by viewModel.dropDownIsShown.collectAsState()
+    val expandedDropdown by viewModel.dropDownIsShownForCategory.collectAsState()
 
     Scaffold(
         content = {
             OverviewContent(
                 categories = categories,
                 onCategoryClick = onCategoryClick,
-                onMoreButtonClick = { viewModel.showDropdown(it) },
+                onMoreButtonClick = { id, shouldShow -> viewModel.showDropdown(id, shouldShow) },
                 expandedDropdown = expandedDropdown,
-                onDismiss = { viewModel.showDropdown(false) },
+                onDismiss = { viewModel.showDropdown(shouldShow = false) },
                 onCategoryDelete = { viewModel.deleteCategory(it) }
             )
         },
@@ -60,12 +60,11 @@ fun OverviewScreen(
 fun OverviewContent(
     categories: List<Category>,
     onCategoryClick: (id: String) -> Unit,
-    onMoreButtonClick: (Boolean) -> Unit,
-    expandedDropdown: Boolean,
+    onMoreButtonClick: (id: String, Boolean) -> Unit,
+    expandedDropdown: Pair<String, Boolean>,
     onDismiss: () -> Unit,
     onCategoryDelete: (id: String) -> Unit
 ) {
-
     Surface(
         color = MaterialTheme.colors.background,
         modifier = Modifier
@@ -74,7 +73,7 @@ fun OverviewContent(
         BackgroundCircle()
         Column {
             Spacer(modifier = Modifier.height(20.dp))
-            OverviewHeader()
+            OverviewHeader(categories.flatMap { it.tasks }.size)
             Spacer(modifier = Modifier.height(20.dp))
             OverviewList(
                 categories = categories,
@@ -91,14 +90,16 @@ fun OverviewContent(
 }
 
 @Composable
-fun OverviewHeader() {
+fun OverviewHeader(
+    taskAmount: Int
+) {
     Column(
         modifier = Modifier
             .padding(start = 36.dp, top = 20.dp)
             .fillMaxWidth(0.8f)
     ) {
-        Text(style = MaterialTheme.typography.h5, text = "Hey there")
-        Text(style = MaterialTheme.typography.body1, text = "Today you have 4 tasks")
+        Text(style = MaterialTheme.typography.h5, text = "Hey there,")
+        Text(style = MaterialTheme.typography.body1, text = "Today you have $taskAmount task(s)")
     }
 }
 
@@ -108,8 +109,8 @@ fun OverviewHeader() {
 fun OverviewList(
     categories: List<Category>,
     onCategoryClick: (id: String) -> Unit,
-    onMoreButtonClick: (Boolean) -> Unit,
-    expandedDropdown: Boolean,
+    onMoreButtonClick: (id: String, Boolean) -> Unit,
+    expandedDropdown: Pair<String, Boolean>,
     onDismiss: () -> Unit,
     onCategoryDelete: (id: String) -> Unit,
     modifier: Modifier = Modifier
@@ -138,8 +139,8 @@ fun OverviewList(
 fun CategoryItem(
     category: Category,
     onCategoryClick: (id: String) -> Unit,
-    onMoreButtonClick: (Boolean) -> Unit,
-    expandedDropdown: Boolean,
+    onMoreButtonClick: (id: String, Boolean) -> Unit,
+    expandedDropdown: Pair<String, Boolean>,
     onCategoryDelete: (id: String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
@@ -186,17 +187,18 @@ fun CategoryItem(
 
         }
 
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd),
-        ) {
-            MoreDropdown(
-                expanded = expandedDropdown,
-                onEditClick = { /*TODO*/ },
-                onDeleteClick = { onCategoryDelete(category.id) },
-                onDismiss = onDismiss
-            )
+        if (category.id == expandedDropdown.first) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd),
+            ) {
+                OverviewMoreDropdown(
+                    expanded = expandedDropdown.second,
+                    onEditClick = { /*TODO*/ },
+                    onDeleteClick = { onCategoryDelete(category.id) },
+                    onDismiss = onDismiss
+                )
+            }
         }
 
         Image(
@@ -206,27 +208,9 @@ fun CategoryItem(
                 .padding(8.dp)
                 .size(32.dp)
                 .align(Alignment.TopEnd)
-                .clickable { onMoreButtonClick(true) }
+                .clickable { onMoreButtonClick(category.id, true) }
         )
 
-    }
-}
-
-@Composable
-fun MoreDropdown(
-    expanded: Boolean,
-    onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onDismiss: () -> Unit
-) {
-
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { onDismiss() }
-    ) {
-        DropdownMenuItem(onClick = onDeleteClick) {
-            Text("Delete")
-        }
     }
 }
 
