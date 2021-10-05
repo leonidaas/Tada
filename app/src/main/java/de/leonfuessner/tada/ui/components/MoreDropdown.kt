@@ -25,7 +25,8 @@ fun OverviewMoreDropdown(
 @Composable
 fun DetailDropdown(
     expanded: Boolean,
-    onDoneRemoveClick: (Boolean) -> Unit,
+    onDoneRemoveClick: () -> Unit,
+    onRemoveAllClick: () -> Unit,
     onDismiss: () -> Unit
 ) {
     DropdownMenu(
@@ -33,9 +34,14 @@ fun DetailDropdown(
         onDismissRequest = { onDismiss() }
     ) {
         DropdownMenuItem(
-            onClick = { onDoneRemoveClick(true) }
+            onClick = { onDoneRemoveClick() }
         ) {
-            Text("Hide done tasks")
+            Text("Remove finished tasks")
+        }
+        DropdownMenuItem(
+            onClick = { onRemoveAllClick() }
+        ) {
+            Text("Clear all tasks")
         }
     }
 }

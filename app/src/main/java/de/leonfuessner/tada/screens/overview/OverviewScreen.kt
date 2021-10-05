@@ -73,7 +73,12 @@ fun OverviewContent(
         BackgroundCircle()
         Column {
             Spacer(modifier = Modifier.height(20.dp))
-            OverviewHeader(categories.flatMap { it.tasks }.size)
+            OverviewHeader(
+                categories
+                    .flatMap { it.tasks }
+                    .filter { !it.isDone }
+                    .size
+            )
             Spacer(modifier = Modifier.height(20.dp))
             OverviewList(
                 categories = categories,

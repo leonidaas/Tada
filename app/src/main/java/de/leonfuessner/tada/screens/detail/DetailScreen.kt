@@ -61,7 +61,8 @@ fun DetailScreen(
                     onEditModeChange = { viewModel.switchAddMode(it) },
                     onTextChange = { viewModel.onTextChange(it) },
                     onEnterClick = { viewModel.addTask() },
-                    onDoneRemoveClick = { viewModel.onRemoveDoneTasks(it) }
+                    onDoneRemoveClick = { viewModel.removeFinishedTasks(viewModel.categoryId) },
+                    onRemoveAllClick = { viewModel.removeAllTasks(viewModel.categoryId) }
                 )
             }
         )
@@ -84,7 +85,8 @@ fun DetailContent(
     onEditModeChange: (Boolean) -> Unit,
     onTextChange: (text: String) -> Unit,
     onEnterClick: () -> Unit,
-    onDoneRemoveClick: (Boolean) -> Unit
+    onDoneRemoveClick: () -> Unit,
+    onRemoveAllClick: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -129,6 +131,7 @@ fun DetailContent(
                         DetailDropdown(
                             expanded = expandedDropdown,
                             onDoneRemoveClick = onDoneRemoveClick,
+                            onRemoveAllClick = onRemoveAllClick,
                             onDismiss = { showDropdown(false) }
                         )
                     }
@@ -219,7 +222,6 @@ fun TaskList(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-
         LazyColumn(
             modifier = modifier
                 .fillMaxHeight(),

@@ -35,14 +35,6 @@ class DetailViewModel @Inject constructor(
     val categoryFlow = _hideDoneTasks.flatMapLatest { hideCompleted ->
         taskRepository
             .getCategory(categoryId)
-            .map { category ->
-                val newCategory = if (hideCompleted) {
-                    category.copy(tasks = category.tasks.filter { !it.isDone })
-                } else {
-                    category
-                }
-                newCategory
-            }
     }.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
 
@@ -85,10 +77,17 @@ class DetailViewModel @Inject constructor(
         }
     }
 
-    fun onRemoveDoneTasks(hide: Boolean) {
+    fun removeFinishedTasks(categoryId: String) {
         onDefault {
             _dropdownIsShown.emit(false)
-            _hideDoneTasks.emit(hide)
+            taskRepository.deleteCompletedTasks(categoryId)
+        }
+    }
+
+    fun removeAllTasks(categoryId: String) {
+        onDefault {
+            _dropdownIsShown.emit(false)
+            taskRepository.deleteAllTasks(categoryId)
         }
     }
 

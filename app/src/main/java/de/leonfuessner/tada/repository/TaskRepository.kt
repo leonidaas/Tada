@@ -27,11 +27,19 @@ class TaskRepository @Inject constructor(
     }
 
     suspend fun updateTask(task: Task) {
-        return categoryClient.update(task)
+        return categoryClient.updateTask(task)
+    }
+
+    suspend fun deleteCompletedTasks(categoryId: String) {
+        categoryClient.deleteCompletedTasks(categoryId)
     }
 
     suspend fun saveCategory(imageId: Int, title: String) {
         categoryClient.save(imageId, title)
+    }
+
+    suspend fun deleteAllTasks(categoryId: String) {
+        categoryClient.deleteAllTasks(categoryId)
     }
 
 }

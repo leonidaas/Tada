@@ -54,9 +54,21 @@ class CategoryDatabaseClient @Inject constructor(
         }
     }
 
-    suspend fun update(task: Task) {
+    suspend fun updateTask(task: Task) {
         withContext(Dispatchers.IO) {
             tasksDao.update(modelToRoom(task))
+        }
+    }
+
+    suspend fun deleteCompletedTasks(categoryId: String) {
+        withContext(Dispatchers.IO) {
+            tasksDao.deleteCompletedTasks(categoryId)
+        }
+    }
+
+    suspend fun deleteAllTasks(categoryId: String) {
+        withContext(Dispatchers.IO) {
+            tasksDao.deleteAllTasks(categoryId)
         }
     }
 }
