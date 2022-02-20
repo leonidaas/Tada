@@ -1,4 +1,4 @@
-package com.leonfuessner.tada.screens
+package de.leonfuessner.tada.screens.add
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -13,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ScaleFactor
+import androidx.compose.ui.layout.lerp
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -22,8 +24,6 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
-import com.google.android.material.math.MathUtils.lerp
-import de.leonfuessner.tada.screens.add.AddCategoryViewModel
 import de.leonfuessner.tada.ui.theme.icons
 import kotlin.math.absoluteValue
 
@@ -91,12 +91,10 @@ fun ImageSelection(
     modifier: Modifier,
     onImageSelectionChange: (Int) -> Unit,
 ) {
-    val pagerState = rememberPagerState(
-        pageCount = images.size,
-        initialOffscreenLimit = 2
-    )
+    val pagerState = rememberPagerState()
 
     HorizontalPager(
+        count = images.size,
         modifier = modifier
             .fillMaxWidth(),
         state = pagerState
@@ -110,19 +108,19 @@ fun ImageSelection(
                     val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
 
                     lerp(
-                        0.50f,
-                        1f,
-                        1f - pageOffset.coerceIn(0f, 1f)
+                        start = ScaleFactor(0.5f, 0.5f),
+                        stop = ScaleFactor(1f, 1f),
+                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
                     ).also { scale ->
-                        scaleX = scale
-                        scaleY = scale
+                        scaleX = scale.scaleX
+                        scaleY = scale.scaleY
                     }
 
                     alpha = lerp(
-                        0.5f,
-                        1f,
+                        start = ScaleFactor(0.5f, 0.5f),
+                        stop = ScaleFactor(1f, 1f),
                         1f - pageOffset.coerceIn(0f, 1f)
-                    )
+                    ).scaleX
                 }
                 .fillMaxWidth(0.4f)
         ) {
