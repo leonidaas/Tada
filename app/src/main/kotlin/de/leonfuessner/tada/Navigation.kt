@@ -13,12 +13,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.plusAssign
-import de.leonfuessner.tada.screens.add.AddCategoryScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import com.google.accompanist.navigation.material.bottomSheet
 import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import com.google.accompanist.pager.ExperimentalPagerApi
+import de.leonfuessner.tada.screens.add.AddCategoryContract
+import de.leonfuessner.tada.screens.add.AddCategoryScreen
+import de.leonfuessner.tada.screens.detail.DetailContract
 import de.leonfuessner.tada.screens.detail.DetailScreen
 import de.leonfuessner.tada.screens.overview.OverviewScreen
 
@@ -71,10 +73,15 @@ fun Navigation() {
                 if (id != null) {
                     DetailScreen(
                         viewModel = hiltViewModel(backStackEntry),
-                        onNavigateUp = {
-                            navController.navigate(TadaScreen.Overview.route) {
-                                navController.popBackStack()
+                        onNavigationRequested = {
+                            when (it) {
+                                DetailContract.SideEffect.Navigation.ToOverview -> {
+                                    navController.navigate(TadaScreen.Overview.route) {
+                                        navController.popBackStack()
+                                    }
+                                }
                             }
+
                         }
                     )
                 }
@@ -84,8 +91,13 @@ fun Navigation() {
                 route = TadaScreen.AddCategory.route
             ) {
                 AddCategoryScreen(
-                    onCategoryAdd = {
-                        navController.navigate(TadaScreen.Overview.route)
+                    onNavigationRequested = {
+                        when (it) {
+                            AddCategoryContract.SideEffect.Navigation.ToOverview -> {
+                                navController.navigate(TadaScreen.Overview.route)
+                            }
+                        }
+
                     }
                 )
             }

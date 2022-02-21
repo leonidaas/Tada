@@ -3,10 +3,13 @@ package de.leonfuessner.tada.screens.overview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import de.leonfuessner.tada.extensions.onDefault
-import de.leonfuessner.tada.extensions.onIO
 import de.leonfuessner.tada.repository.TaskRepository
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,7 +21,7 @@ class OverviewViewmodel @Inject constructor(
     val dropDownIsShownForCategory: StateFlow<Pair<String, Boolean>> = _dropdownIsShownForCategory
 
     fun showDropdown(id: String? = null, shouldShow: Boolean) {
-        onDefault {
+        viewModelScope.launch {
             if (id != null) {
                 _dropdownIsShownForCategory.emit(Pair(id, shouldShow))
             } else {
@@ -33,10 +36,13 @@ class OverviewViewmodel @Inject constructor(
 
 
     fun deleteCategory(categoryId: String) {
-        onIO {
+        viewModelScope.launch(Dispatchers.IO) {
+//            onIO {
             showDropdown("", false)
             repository.deleteCategory(categoryId)
+//            }
         }
+
     }
 
 }

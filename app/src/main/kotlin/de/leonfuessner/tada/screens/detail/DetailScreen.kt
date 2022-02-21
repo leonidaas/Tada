@@ -13,9 +13,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -24,45 +22,44 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import de.leonfuessner.tada.R
 import com.google.accompanist.insets.imePadding
+import de.leonfuessner.tada.R
 import de.leonfuessner.tada.model.Category
 import de.leonfuessner.tada.model.Task
 import de.leonfuessner.tada.ui.components.BackgroundCircle
 import de.leonfuessner.tada.ui.components.DetailDropdown
 import de.leonfuessner.tada.ui.theme.icons
+import kotlinx.coroutines.flow.collect
 
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @Composable
 fun DetailScreen(
     viewModel: DetailViewModel,
-    onNavigateUp: () -> Unit = {}
+    onNavigationRequested: (DetailContract.SideEffect.Navigation) -> Unit = {}
 ) {
+    val state = viewModel.viewState.value
 
-    val category by viewModel.categoryFlow.collectAsState()
-    val isEditMode by viewModel.isInAddMode.collectAsState()
-    val taskText by viewModel.taskText.collectAsState()
-    val shouldShowDropdown by viewModel.dropdownIsShown.collectAsState()
+    LaunchedEffect(viewModel.effect, onNavigationRequested) {
+        viewModel.effect.collect {
+            when (it) {
+                is DetailContract.SideEffect.Navigation.ToOverview -> {
+                    onNavigationRequested(it)
+                }
+            }
+        }
+    }
 
-    if (category != null) {
+    if (state.category == null) {
+        CircularProgressIndicator()
+    } else {
         Scaffold(
             content = {
                 DetailContent(
-                    category = category!!,
-                    isEditMode = isEditMode,
-                    taskText = taskText,
-                    expandedDropdown = shouldShowDropdown,
-                    onCheckChange = { id, checked ->
-                        viewModel.onCheckChange(id, checked)
-                    },
-                    showDropdown = { viewModel.showDropdown(it) },
-                    onNavigateUp = onNavigateUp,
-                    onEditModeChange = { viewModel.switchAddMode(it) },
-                    onTextChange = { viewModel.onTextChange(it) },
-                    onEnterClick = { viewModel.addTask() },
-                    onDoneRemoveClick = { viewModel.removeFinishedTasks(viewModel.categoryId) },
-                    onRemoveAllClick = { viewModel.removeAllTasks(viewModel.categoryId) }
+                    category = state.category,
+                    isEditMode = state.isEditMode,
+                    expandedDropdown = state.shouldShowDropdown,
+                    sendEvent = { viewModel.setEvent(it) }
                 )
             }
         )
@@ -70,23 +67,14 @@ fun DetailScreen(
 
 }
 
-
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @Composable
 fun DetailContent(
     category: Category,
     isEditMode: Boolean,
-    taskText: String,
     expandedDropdown: Boolean,
-    onCheckChange: (Task, Boolean) -> Unit,
-    onNavigateUp: () -> Unit = {},
-    showDropdown: (Boolean) -> Unit = {},
-    onEditModeChange: (Boolean) -> Unit,
-    onTextChange: (text: String) -> Unit,
-    onEnterClick: () -> Unit,
-    onDoneRemoveClick: () -> Unit,
-    onRemoveAllClick: () -> Unit
+    sendEvent: (DetailContract.Event) -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -113,7 +101,7 @@ fun DetailContent(
                         modifier = Modifier
                             .size(32.dp)
                             .align(Alignment.CenterStart)
-                            .clickable { onNavigateUp() }
+                            .clickable { sendEvent(DetailContract.Event.NavigateUpClicked) }
                     )
 
                     Icon(
@@ -122,7 +110,7 @@ fun DetailContent(
                         modifier = Modifier
                             .size(32.dp)
                             .align(Alignment.CenterEnd)
-                            .clickable { showDropdown(true) }
+                            .clickable { sendEvent(DetailContract.Event.MoreButtonClicked) }
                     )
                     Box(
                         modifier = Modifier
@@ -130,9 +118,9 @@ fun DetailContent(
                     ) {
                         DetailDropdown(
                             expanded = expandedDropdown,
-                            onDoneRemoveClick = onDoneRemoveClick,
-                            onRemoveAllClick = onRemoveAllClick,
-                            onDismiss = { showDropdown(false) }
+                            onDoneRemoveClick = { sendEvent(DetailContract.Event.RemoveDoneTasksClicked) },
+                            onRemoveAllClick = { sendEvent(DetailContract.Event.RemoveAllTasksClicked) },
+                            onDismiss = { sendEvent(DetailContract.Event.DismissClicked) }
                         )
                     }
                 }
@@ -147,7 +135,7 @@ fun DetailContent(
                         .padding(bottom = 64.dp)
                         .align(Alignment.Start),
                     tasks = category.tasks,
-                    onCheckChange = onCheckChange,
+                    sendEvent
                 )
             }
 
@@ -157,9 +145,13 @@ fun DetailContent(
                     modifier = Modifier
                         .padding(bottom = 16.dp)
                         .align(Alignment.BottomCenter),
-                    onEditModeChange = onEditModeChange
+                    onEditModeChange = { sendEvent(DetailContract.Event.EditModeChanged) }
                 )
             } else {
+                var text by remember {
+                    mutableStateOf("")
+                }
+
                 AnimatedVisibility(
                     visible = isEditMode,
                     enter = slideIn(initialOffset = { IntOffset(0, it.height) }),
@@ -167,10 +159,12 @@ fun DetailContent(
                     modifier = Modifier.align(Alignment.BottomCenter)
                 ) {
                     TaskAddBar(
-                        value = taskText,
+                        value = text,
                         modifier = Modifier.padding(bottom = 16.dp),
-                        onValueChange = onTextChange,
-                        onAddAction = onEnterClick
+                        onValueChange = { text = it },
+                        onAddAction = {
+                            sendEvent(DetailContract.Event.ItemAdded(text))
+                        }
                     )
                 }
             }
@@ -216,7 +210,7 @@ fun TaskHeader(
 fun TaskList(
     modifier: Modifier,
     tasks: List<Task>? = emptyList(),
-    onCheckChange: (Task, Boolean) -> Unit = { _, _ -> },
+    sendEvent: (DetailContract.Event) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -231,7 +225,7 @@ fun TaskList(
             items(tasks ?: emptyList()) { task ->
                 TaskItem(
                     task,
-                    onCheckChange
+                    sendEvent
                 )
             }
         }
@@ -242,7 +236,7 @@ fun TaskList(
 @Composable
 fun TaskItem(
     task: Task,
-    onCheckChange: (Task, Boolean) -> Unit
+    sendEvent: (DetailContract.Event) -> Unit
 ) {
     Column {
         Row {
@@ -250,7 +244,7 @@ fun TaskItem(
             Checkbox(
                 checked = task.isDone,
                 onCheckedChange = {
-                    onCheckChange.invoke(task, it)
+                    sendEvent(DetailContract.Event.OnCheckClicked(task, it))
                 }
             )
             Spacer(modifier = Modifier.width(16.dp))

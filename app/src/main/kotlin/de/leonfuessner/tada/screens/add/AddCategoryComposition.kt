@@ -7,8 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +24,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
 import de.leonfuessner.tada.ui.theme.icons
+import kotlinx.coroutines.flow.collect
 import kotlin.math.absoluteValue
 
 @ExperimentalPagerApi
@@ -32,11 +32,35 @@ import kotlin.math.absoluteValue
 @Composable
 fun AddCategoryScreen(
     viewModel: AddCategoryViewModel = hiltViewModel(),
-    onCategoryAdd: () -> Unit = {}
+    onNavigationRequested: (AddCategoryContract.SideEffect.Navigation) -> Unit
 ) {
-    val name by viewModel.categoryName.collectAsState()
-    val categoryImageId by viewModel.categoryImageId.collectAsState()
+    LaunchedEffect(viewModel.effect, onNavigationRequested) {
+        viewModel.effect.collect {
+            when (it) {
+                is AddCategoryContract.SideEffect.Navigation.ToOverview -> onNavigationRequested(it)
+            }
+        }
+    }
 
+    val state = viewModel.viewState.value
+    AddCategoryContent(
+        text = state.text,
+        id = state.imagePosition,
+        sendEvent = {
+            viewModel.setEvent(it)
+        })
+
+}
+
+@ExperimentalPagerApi
+@ExperimentalMaterialApi
+@Composable
+fun AddCategoryContent(
+    text: String,
+    id: Int,
+    modifier: Modifier = Modifier,
+    sendEvent: (AddCategoryContract.Event) -> Unit
+) {
     Column(
         Modifier
             .imePadding()
@@ -53,16 +77,16 @@ fun AddCategoryScreen(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
         ) {
-            viewModel.onCategoryImageChange(it)
+            sendEvent(it)
         }
 
         TextInput(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(top = 16.dp),
-            text = name
+            text = text
         ) {
-            viewModel.onCategoryTitleChange(it)
+            sendEvent(it)
         }
         Button(
             shape = RoundedCornerShape(16.dp),
@@ -73,8 +97,7 @@ fun AddCategoryScreen(
                 backgroundColor = MaterialTheme.colors.secondary
             ),
             onClick = {
-                viewModel.addCategory(categoryImageId, name)
-                onCategoryAdd.invoke()
+                sendEvent(AddCategoryContract.Event.CategoryAdded)
             }
         ) {
             Text("Add category")
@@ -89,7 +112,7 @@ fun AddCategoryScreen(
 fun ImageSelection(
     images: List<Int>,
     modifier: Modifier,
-    onImageSelectionChange: (Int) -> Unit,
+    sendEvent: (AddCategoryContract.Event) -> Unit,
 ) {
     val pagerState = rememberPagerState()
 
@@ -99,7 +122,7 @@ fun ImageSelection(
             .fillMaxWidth(),
         state = pagerState
     ) { page ->
-        onImageSelectionChange.invoke(pagerState.currentPage)
+        sendEvent(AddCategoryContract.Event.ImageChanged(pagerState.currentPage))
         Card(
             elevation = 0.dp,
             modifier = Modifier
@@ -148,7 +171,7 @@ fun ImageSelection(
 fun TextInput(
     modifier: Modifier,
     text: String,
-    onCategoryTitleChange: (String) -> Unit
+    sendEvent: (AddCategoryContract.Event) -> Unit
 ) {
     OutlinedTextField(
         placeholder = { if (text.isEmpty()) Text("Title") else Text("") },
@@ -158,6 +181,8 @@ fun TextInput(
             focusedBorderColor = MaterialTheme.colors.secondary
         ),
         value = text,
-        onValueChange = onCategoryTitleChange
+        onValueChange = {
+            sendEvent(AddCategoryContract.Event.TextChanged(it))
+        }
     )
 }

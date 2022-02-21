@@ -16,8 +16,8 @@ import de.leonfuessner.tada.ui.theme.TadaTheme
 @ExperimentalPagerApi
 @ExperimentalMaterialApi
 @ExperimentalMaterialNavigationApi
-@AndroidEntryPoint
 @ExperimentalComposeUiApi
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

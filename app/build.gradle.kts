@@ -94,7 +94,6 @@ dependencies {
     //TODO: move into version catalogue
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
 
-
     implementation(libs.hilt.android.runtime)
     kapt(libs.hilt.compiler)
     kapt(libs.androidx.hilt.compiler)
@@ -111,9 +110,6 @@ dependencies {
     implementation(libs.coil.compose)
 
     implementation(libs.chuckerteam.chucker) //TODO: in release do noop
-
-
-
 
     val room_version = "2.4.0"
 
