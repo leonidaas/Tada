@@ -22,13 +22,16 @@ class DetailViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            taskRepository
-                .getCategory(categoryId)
-                .collect {
-                    setState { copy(category = it) }
-                }
+            observeTasks()
         }
+    }
 
+    private suspend fun observeTasks() {
+        taskRepository
+            .getCategory(categoryId)
+            .collect {
+                setState { copy(category = it) }
+            }
     }
 
     private fun addTask(text: String) {
@@ -59,6 +62,12 @@ class DetailViewModel @Inject constructor(
             onIO {
                 taskRepository.deleteCompletedTasks(categoryId)
             }
+
+            onMain {
+                setState {
+                    copy(shouldShowDropdown = false)
+                }
+            }
         }
 
     }
@@ -67,6 +76,11 @@ class DetailViewModel @Inject constructor(
         viewModelScope.launch {
             onIO {
                 taskRepository.deleteAllTasks(categoryId)
+            }
+            onMain {
+                setState {
+                    copy(shouldShowDropdown = false)
+                }
             }
         }
     }

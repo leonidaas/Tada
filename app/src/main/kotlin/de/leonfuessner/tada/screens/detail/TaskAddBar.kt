@@ -1,5 +1,7 @@
 package de.leonfuessner.tada.screens.detail
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
@@ -13,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun TaskAddBar(
@@ -26,6 +29,8 @@ fun TaskAddBar(
     OutlinedTextField(
         placeholder = { if (value.isEmpty()) Text("Task") else Text("") },
         modifier = modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp)
             .focusRequester(focusRequester),
         colors = TextFieldDefaults.outlinedTextFieldColors(
             cursorColor = MaterialTheme.colors.secondary,

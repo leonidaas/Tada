@@ -219,14 +219,14 @@ fun TaskList(
         LazyColumn(
             modifier = modifier
                 .fillMaxHeight(),
-            contentPadding = PaddingValues(8.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(tasks ?: emptyList()) { task ->
                 TaskItem(
                     task,
                     sendEvent
                 )
+                Divider(color = Color.Gray)
             }
         }
     }
@@ -239,23 +239,23 @@ fun TaskItem(
     sendEvent: (DetailContract.Event) -> Unit
 ) {
     Column {
-        Row {
-            Spacer(modifier = Modifier.width(16.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = Modifier.width(8.dp))
             Checkbox(
                 checked = task.isDone,
                 onCheckedChange = {
                     sendEvent(DetailContract.Event.OnCheckClicked(task, it))
                 }
             )
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 style = MaterialTheme.typography.body1,
                 text = task.text,
                 textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None
             )
         }
-        Spacer(Modifier.height(8.dp))
-        Divider(color = Color.Gray)
     }
 
 }
@@ -265,7 +265,6 @@ fun EditModeItem(
     modifier: Modifier = Modifier,
     onEditModeChange: (Boolean) -> Unit
 ) {
-
     Icon(
         imageVector = Icons.Default.Add,
         contentDescription = "bac",
@@ -273,5 +272,4 @@ fun EditModeItem(
             .size(32.dp)
             .clickable { onEditModeChange(true) }
     )
-
 }

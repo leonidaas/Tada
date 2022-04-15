@@ -7,12 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavType
+import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import androidx.navigation.plusAssign
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import com.google.accompanist.navigation.material.bottomSheet
@@ -22,6 +20,7 @@ import de.leonfuessner.tada.screens.add.AddCategoryContract
 import de.leonfuessner.tada.screens.add.AddCategoryScreen
 import de.leonfuessner.tada.screens.detail.DetailContract
 import de.leonfuessner.tada.screens.detail.DetailScreen
+import de.leonfuessner.tada.screens.overview.OverviewContract
 import de.leonfuessner.tada.screens.overview.OverviewScreen
 
 @ExperimentalComposeUiApi
@@ -43,22 +42,7 @@ fun Navigation() {
             navController = navController,
             startDestination = TadaScreen.Overview.route
         ) {
-            composable(
-                route = TadaScreen.Overview.route
-            ) {
-                OverviewScreen(
-                    onCategoryClick = { categoryId ->
-                        navController.navigate(
-                            TadaScreen.Detail.withArgs(categoryId)
-                        )
-                    },
-                    onAddCategoryClick = {
-                        navController.navigate(TadaScreen.AddCategory.route) {
-                            popUpTo(TadaScreen.Overview.route)
-                        }
-                    }
-                )
-            }
+            overview(route = TadaScreen.Overview.route, navController = navController)
 
             composable(
                 route = TadaScreen.Detail.route + "{categoryId}",
@@ -97,11 +81,36 @@ fun Navigation() {
                                 navController.navigate(TadaScreen.Overview.route)
                             }
                         }
-
                     }
                 )
             }
         }
     }
+}
 
+private fun NavGraphBuilder.overview(
+    route: String,
+    navController: NavController
+) {
+    composable(
+        route = route
+    ) {
+        OverviewScreen(
+            viewModel = hiltViewModel(),
+            onNavigationRequested = { target ->
+                when (target) {
+                    is OverviewContract.SideEffect.Navigation.ToDetail -> {
+                        navController.navigate(
+                            TadaScreen.Detail.withArgs(target.id)
+                        )
+                    }
+                    OverviewContract.SideEffect.Navigation.ToAddCategory -> {
+                        navController.navigate(TadaScreen.AddCategory.route) {
+                            popUpTo(TadaScreen.Overview.route)
+                        }
+                    }
+                }
+            }
+        )
+    }
 }

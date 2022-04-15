@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -16,39 +17,42 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import de.leonfuessner.tada.R
 import de.leonfuessner.tada.model.Category
 import de.leonfuessner.tada.ui.components.BackgroundCircle
 import de.leonfuessner.tada.ui.components.OverviewMoreDropdown
 import de.leonfuessner.tada.ui.theme.icons
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 
+@OptIn(InternalCoroutinesApi::class)
 @Composable
 fun OverviewScreen(
-    viewModel: OverviewViewmodel = hiltViewModel(),
-    onCategoryClick: (id: String) -> Unit = {},
-    onAddCategoryClick: () -> Unit = {}
+    viewModel: OverviewViewmodel,
+    onNavigationRequested: (OverviewContract.SideEffect.Navigation) -> Unit
 ) {
-    val categories by viewModel.categories.collectAsState()
-    val expandedDropdown by viewModel.dropDownIsShownForCategory.collectAsState()
+    val state = viewModel.viewState.value
+
+    LaunchedEffect(viewModel.effect, onNavigationRequested) {
+        viewModel.effect.collect {
+            when (it) {
+                is OverviewContract.SideEffect.Navigation -> onNavigationRequested(it)
+            }
+        }
+    }
 
     Scaffold(
         content = {
             OverviewContent(
-                categories = categories,
-                onCategoryClick = onCategoryClick,
-                onMoreButtonClick = { id, shouldShow -> viewModel.showDropdown(id, shouldShow) },
-                expandedDropdown = expandedDropdown,
-                onDismiss = { viewModel.showDropdown(shouldShow = false) },
-                onCategoryDelete = { viewModel.deleteCategory(it) }
+                categories = state.categories,
+                sendEvent = { viewModel.setEvent(it) }
             )
         },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onAddCategoryClick
+                onClick = { viewModel.setEvent(OverviewContract.Event.AddCategoryClicked) }
             ) {
                 Icon(Icons.Default.Add, "add")
             }
@@ -57,13 +61,9 @@ fun OverviewScreen(
 }
 
 @Composable
-fun OverviewContent(
+private fun OverviewContent(
     categories: List<Category>,
-    onCategoryClick: (id: String) -> Unit,
-    onMoreButtonClick: (id: String, Boolean) -> Unit,
-    expandedDropdown: Pair<String, Boolean>,
-    onDismiss: () -> Unit,
-    onCategoryDelete: (id: String) -> Unit
+    sendEvent: (OverviewContract.Event) -> Unit,
 ) {
     Surface(
         color = MaterialTheme.colors.background,
@@ -82,21 +82,17 @@ fun OverviewContent(
             Spacer(modifier = Modifier.height(20.dp))
             OverviewList(
                 categories = categories,
-                onCategoryClick = onCategoryClick,
-                onMoreButtonClick = onMoreButtonClick,
+                sendEvent = sendEvent,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally),
-                expandedDropdown = expandedDropdown,
-                onDismiss = onDismiss,
-                onCategoryDelete = onCategoryDelete
             )
         }
     }
 }
 
 @Composable
-fun OverviewHeader(
-    taskAmount: Int
+private fun OverviewHeader(
+    taskCount: Int
 ) {
     Column(
         modifier = Modifier
@@ -104,20 +100,16 @@ fun OverviewHeader(
             .fillMaxWidth(0.8f)
     ) {
         Text(style = MaterialTheme.typography.h5, text = "Hey there,")
-        Text(style = MaterialTheme.typography.body1, text = "Today you have $taskAmount task(s)")
+        Text(style = MaterialTheme.typography.body1, text = "Today you have $taskCount task(s)")
     }
 }
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun OverviewList(
+private fun OverviewList(
     categories: List<Category>,
-    onCategoryClick: (id: String) -> Unit,
-    onMoreButtonClick: (id: String, Boolean) -> Unit,
-    expandedDropdown: Pair<String, Boolean>,
-    onDismiss: () -> Unit,
-    onCategoryDelete: (id: String) -> Unit,
+    sendEvent: (OverviewContract.Event) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -129,11 +121,7 @@ fun OverviewList(
         items(categories) { category ->
             CategoryItem(
                 category = category,
-                onCategoryClick = onCategoryClick,
-                onMoreButtonClick = onMoreButtonClick,
-                expandedDropdown = expandedDropdown,
-                onDismiss = onDismiss,
-                onCategoryDelete = onCategoryDelete
+                sendEvent = sendEvent
             )
         }
     }
@@ -141,13 +129,9 @@ fun OverviewList(
 
 @ExperimentalMaterialApi
 @Composable
-fun CategoryItem(
+private fun CategoryItem(
     category: Category,
-    onCategoryClick: (id: String) -> Unit,
-    onMoreButtonClick: (id: String, Boolean) -> Unit,
-    expandedDropdown: Pair<String, Boolean>,
-    onCategoryDelete: (id: String) -> Unit,
-    onDismiss: () -> Unit,
+    sendEvent: (OverviewContract.Event) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -157,14 +141,15 @@ fun CategoryItem(
             .height(124.dp)
             .fillMaxWidth(0.9f)
             .background(Color.White)
-            .clickable { onCategoryClick.invoke(category.id) },
+            .clickable {
+                sendEvent(OverviewContract.Event.CategoryClicked(category.id))
+            },
     ) {
         Row(
             modifier = Modifier
                 .padding(start = 16.dp)
                 .align(Alignment.CenterStart)
         ) {
-
             Image(
                 painterResource(id = icons[category.imageId]),
                 contentDescription = "bathtub",
@@ -192,30 +177,37 @@ fun CategoryItem(
 
         }
 
-        if (category.id == expandedDropdown.first) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd),
-            ) {
-                OverviewMoreDropdown(
-                    expanded = expandedDropdown.second,
-                    onEditClick = { /*TODO*/ },
-                    onDeleteClick = { onCategoryDelete(category.id) },
-                    onDismiss = onDismiss
-                )
-            }
+        var showDropDown by remember { mutableStateOf(false) }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd),
+        ) {
+            OverviewMoreDropdown(
+                expanded = showDropDown,
+                onEditClick = { /*TODO*/ },
+                onDeleteClick = {
+                    sendEvent(OverviewContract.Event.DeleteCategoryClicked(category.id))
+                    showDropDown = false
+                },
+                onDismiss = {
+                    showDropDown = false
+                }
+            )
         }
 
-        Image(
-            painterResource(id = R.drawable.ic_baseline_more_vert_24),
+        Icon(
+            painter = painterResource(id = R.drawable.ic_baseline_more_vert_24),
+            tint = Color.Black,
             contentDescription = "more",
             modifier = Modifier
                 .padding(8.dp)
                 .size(32.dp)
                 .align(Alignment.TopEnd)
-                .clickable { onMoreButtonClick(category.id, true) }
+                .clickable {
+                    showDropDown = !showDropDown
+                }
         )
-
     }
 }
 
